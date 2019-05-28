@@ -6,17 +6,19 @@ from datetime import datetime
 from flask_wtf import FlaskForm
 from wtforms import StringField, SubmitField
 from wtforms.validators import DataRequired
+from flask_bootstrap import Bootstrap
 
 
 app = Flask(__name__)
 moment = Moment(app)  #初始化Moment
+bootstrap = Bootstrap(app)
 app.config['SECRET_KEY'] = '5583jfisnjjgsinegensdfjienge'
 
 
 #表单类
 class NameForm(FlaskForm):
-    name = StringField("what's your name ", validators=[DataRequired])
-    submit = SubmitField('Submit')
+    name = StringField("能告诉我你的名字吗？", validators=[DataRequired(message='名字忘填了。。。')])
+    submit = SubmitField('告知一下！')
 
 
 @app.route('/')
@@ -24,26 +26,39 @@ def hello_world():
     user_agent = request.headers.get('User-Agent')
     return '浏览器版本为：{}'.format(user_agent)
 
+
 @app.route('/index/')
 def index():
 
     return render_template('index.html', current_time=datetime.utcnow())
 
+
+@app.route('/user/')
+def user():
+
+    return render_template('user.html', name='David')
+
+
 @app.route('/name/<name>/')
 def get_name(name):
     return 'Hello {} ! 欢迎来到Flask！'.format(name)
 
-@app.route('/login/<uname>', methods=['GET', 'POST'])
-def login(uname):
-    if request.method=='GET':
-        return uname
-    elif request.method=='POST':
-        pass
+
+@app.route('/login/', methods=['GET', 'POST'])
+def login():
+    name = None
+    form = NameForm()
+    if form.validate_on_submit():
+        name = form.name.data
+        form.name.data = ''
+    return render_template('login.html', form=form, name=name)
+
 
 @app.route('/post/<int:post_id>')
 def show_post(post_id):
     # show the post with the given id, the id is an integer
     return 'Post {}'.format(post_id)
+
 
 @app.route('/template/')
 @app.route('/template/<tmp_name>/')
