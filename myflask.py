@@ -1,8 +1,22 @@
 from flask import Flask
 from flask import request
 from flask import render_template
+from flask_moment import Moment
+from datetime import datetime
+from flask_wtf import FlaskForm
+from wtforms import StringField, SubmitField
+from wtforms.validators import DataRequired
+
 
 app = Flask(__name__)
+moment = Moment(app)  #初始化Moment
+app.config['SECRET_KEY'] = '5583jfisnjjgsinegensdfjienge'
+
+
+#表单类
+class NameForm(FlaskForm):
+    name = StringField("what's your name ", validators=[DataRequired])
+    submit = SubmitField('Submit')
 
 
 @app.route('/')
@@ -13,7 +27,7 @@ def hello_world():
 @app.route('/index/')
 def index():
 
-    return render_template('index.html')
+    return render_template('index.html', current_time=datetime.utcnow())
 
 @app.route('/name/<name>/')
 def get_name(name):
@@ -45,6 +59,6 @@ def show_tem_name(tmp_name=None):
 #     return resp #render_template('error.html'), 404
 
 if __name__ == '__main__':
-    app.run(debug=True)  # debug模式启动，重载器与调试器
+    app.run(debug=True, host='127.0.0.1', port=5000)  # debug模式启动，重载器与调试器
 
 

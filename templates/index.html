@@ -1,6 +1,11 @@
 
 {% extends 'base.html' %}
 {% block title %}Index{% endblock %}
-{% block head %}{{ super() }}<style></style>{% endblock %}
-{% block body %}<h1>hello world!</h1>{% endblock %}
+{#{% block head %}{{ super() }}<style></style>{% endblock %}#}
+{% block body %}<h1>hello world!</h1>
+
+<h3>The local date and time is {{ moment(current_time).format('LLL') }}.</h3>
+<h3>That was {{ moment(current_time).fromNow(refresh=True) }}</h3>
+{% endblock %}
+
 

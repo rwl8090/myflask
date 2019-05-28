@@ -1,5 +1,9 @@
 <!DOCTYPE html>
 <html>
+{% block scripts %}
+    {{ moment.include_moment() }}
+{% endblock %}
+
 <head>
     {% block head %}
         <title>{% block title %}{% endblock %} - My Application</title>
@@ -8,5 +12,7 @@
 <body>
 {% block body %}
 {% endblock %}
+
+
 </body>
 </html>
