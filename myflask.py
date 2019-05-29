@@ -1,4 +1,4 @@
-from flask import Flask
+from flask import Flask, session, redirect, url_for, flash
 from flask import request
 from flask import render_template
 from flask_moment import Moment
@@ -7,12 +7,36 @@ from flask_wtf import FlaskForm
 from wtforms import StringField, SubmitField
 from wtforms.validators import DataRequired
 from flask_bootstrap import Bootstrap
-
+from flask_sqlalchemy import SQLAlchemy
+import pymysql
 
 app = Flask(__name__)
 moment = Moment(app)  #初始化Moment
 bootstrap = Bootstrap(app)
 app.config['SECRET_KEY'] = '5583jfisnjjgsinegensdfjienge'
+app.config['SQLALCHEMY_DATABASE_URI'] = 'mysql+pymysql://python:python@127.0.0.1:3306/python'  # 初始化连接
+app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False # 以便在不需要跟踪对象变化时降低内存消耗
+db = SQLAlchemy(app)
+
+
+# 数据库类
+class Role(db.Model):
+    __tablename__ = 'role'  # 指定表名
+    role_id = db.Column(db.Integer, primary_key=True)
+    role_name = db.Column(db.String(50), unique=True)
+    user = db.relationship('User', backref='role')
+    def __repr__(self):
+        return '<Role %r>' % self.name
+
+class User(db.Model):
+    __tablename__ = 'user'
+    user_id = db.Column(db.Integer, primary_key=True)
+    user_name = db.Column(db.String(50), unique=True, index=True)
+    role_id = db.Column(db.Integer, db.ForeignKey('role.role_id'))
+
+    def __repr__(self):
+        return '<User %r>' % self.user_name
+
 
 
 #表单类
@@ -46,12 +70,15 @@ def get_name(name):
 
 @app.route('/login/', methods=['GET', 'POST'])
 def login():
-    name = None
     form = NameForm()
     if form.validate_on_submit():
-        name = form.name.data
-        form.name.data = ''
-    return render_template('login.html', form=form, name=name)
+        old_name = session.get('name')
+        if old_name is not None and old_name != form.name.data:
+            flash("Looks like you have changed your name!")
+        session['name'] = form.name.data
+        return redirect(url_for('login'))
+        #form.name.data = ''
+    return render_template('login.html', form=form, name=session.get('name'))
 
 
 @app.route('/post/<int:post_id>')

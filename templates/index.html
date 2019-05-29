@@ -1,5 +1,7 @@
 
 {% extends 'base.html' %}
+<head><link rel="icon" href="{{ url_for('static', filename='icon.jpg') }}">
+</head>
 {% block title %}Index{% endblock %}
 {#{% block head %}{{ super() }}<style></style>{% endblock %}#}
 {% block body %}<h1>hello world!</h1>
